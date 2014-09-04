@@ -2,7 +2,8 @@
 var tetris = tetris || {};
 tetris.model = tetris.model || {};
 
-// New scope
+// A Scope for model definitions
+
 (function(_, undefined) {
 
 var model = tetris.model;
