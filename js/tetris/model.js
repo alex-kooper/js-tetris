@@ -70,7 +70,7 @@ model.Mino.prototype = {
 
     toString: function() {
         var d = this.getDimensions();
-        var s = "";
+        var s = "\n";
 
         for(var y = d.fromY; y < d.toY; y++) {
             for(var x = d.fromX; x < d.toX; x++) {
