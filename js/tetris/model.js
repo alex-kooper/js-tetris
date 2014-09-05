@@ -36,7 +36,7 @@ model.Point.prototype = {
     },
 }
 
-model.Mino = function(points, rotationPoint) {
+model.Polyomino = function(points, rotationPoint) {
     this._points = []
 
     for(var i = 0; i < points.length; i++)
@@ -45,7 +45,7 @@ model.Mino = function(points, rotationPoint) {
     this._rotationPoint = new model.Point(rotationPoint.x, rotationPoint.y);
 }
 
-model.Mino.prototype = {
+model.Polyomino.prototype = {
 
     moveLeft: function() { return this._tryMove(this._moveLeft); },
 
@@ -86,7 +86,7 @@ model.Mino.prototype = {
         return s;
     },
 
-    _create: function(points, rotationPoint) { return new model.Mino(points, rotationPoint); },
+    _create: function(points, rotationPoint) { return new model.Polyomino(points, rotationPoint); },
 
     _move: function(dx, dy) { 
         var ps = _(this._points).map(function(p) { return p.move(dx, dy); });
@@ -124,16 +124,58 @@ model.Mino.prototype = {
     },
 
     _tryMove: function(fn) {
-        var newMino = fn.call(this);
-        return newMino._isValid() ? newMino : this;
+        var newPolyomino = fn.call(this);
+        return newPolyomino._isValid() ? newPolyomino : this;
     }
+}
+
+model.Matrix = function(width, height) {
+    this._matrix = _(width).times(_.constant(_(height).times(_.constant(null))));
+}
+
+model.Matrix.prototype = {
+
+    getWidth: function() { return this._matrix.length; },
+
+    getHeight: function() {
+        if(this._matrix.length <= 0)
+            throw new Error("Cannot get height of a field that has width zero");	    
+
+        return this._matrix[0].length;
+    },
+    
+    isValid: function(x, y) {
+        return x >= 0 && x < this.getWidth() && y < this.getHeight();
+    },	
+    
+    setMino: function(x, y, value) {
+        if(!this.isValid(x, y))
+	    throw new Error("Trying to set an invalid cell");
+
+        this._matrix[x][y] = value;
+	return this;
+    },
+    
+    getMino: function(x, y) {
+        if(!this.isValid(x, y))
+	    throw new Error("Trying to get a value of an invalid cell");
+
+	if(y < 0)
+	    return null;
+
+        return this._matrix[x][y];
+    },
+
+    isEmpty: function(x, y) {
+        return getMino(x, y) === null	    
+    }    
 }
 
 // End of scope
 })(_);
 
 
-var testMino = new tetris.model.Mino(
+var testPentamino = new tetris.model.Polyomino(
     [{x: 0, y: 0}, {x: 1, y: 0}, {x: 2, y: 0}, {x: 2, y: 1}, {x: 3, y: 0}], 
     {x: 1, y: 0}   
 );
