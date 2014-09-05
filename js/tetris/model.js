@@ -129,21 +129,24 @@ model.Polyomino.prototype = {
     }
 }
 
-model.Matrix = function(width, height) {
-    this._matrix = _(width).times(function() {
+model.Field = function(width, height) {
+    // array that holds number of minos(blocks) in every line
+    this._minoCounters = _(height).times(_.constant(0));
+    
+    this.field = _(width).times(function() {
         return _(height).times(_.constant(null));
     });
 } 
 		    
-model.Matrix.prototype = {
+model.Field.prototype = {
 
-    getWidth: function() { return this._matrix.length; },
+    getWidth: function() { return this.field.length; },
 
     getHeight: function() {
-        if(this._matrix.length <= 0)
+        if(this.field.length <= 0)
             throw new Error("Cannot get height of a field that has width zero");	    
 
-        return this._matrix[0].length;
+        return this.field[0].length;
     },
     
     isValid: function(x, y) {
@@ -154,7 +157,13 @@ model.Matrix.prototype = {
         if(!this.isValid(x, y))
 	    throw new Error("Trying to set an invalid cell");
 
-        this._matrix[x][y] = value;
+	if(this._field[x][y] === null && value !== null) {
+	    this._minoCounter[y] += 1;
+	} else if(this._field[x][y] !== null && value === null) {
+	    this._minoCounter[y] -= 1;
+	}
+
+        this.field[x][y] = value;
 	return this;
     },
     
@@ -163,14 +172,32 @@ model.Matrix.prototype = {
 	    throw new Error("Trying to get a value of an invalid cell");
 
 	if(y < 0)
-	    return null;
+            return null;
 
-        return this._matrix[x][y];
+        return this.field[x][y];
     },
+
+    clear: function(x, y) {
+	this.setMino(null);
+    },    
 
     isEmpty: function(x, y) {
         return this.getMino(x, y) === null	    
     },    
+
+    getNumberOfMinosInLine: function(y) {
+	return this._minoCounters[y];
+    },    
+
+    isLineComplete: function(y) {
+	return this.getNumberOfMinosInLine(y) == this.getWidth();
+    },    
+
+    clearLine: function(lineNumber) {
+	for(var y = lineNumber; y >= 0; y--)
+	    for(var x = 0; x < this.getWidth(); x++)
+	        this._field[x][y] = this.getMino(x, y - 1);
+    },
 
     toString: function(x, y) {
 	var s = "\n";
