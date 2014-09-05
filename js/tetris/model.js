@@ -20,14 +20,14 @@ model.Point.prototype = {
     },
 
     rotateRight: function(p) {
-        var newX = -(this.y - p.y) + p.x;
-        var newY = (this.x - p.x) + p.y;
+        var newX = Math.round(-(this.y - p.y) + p.x);
+        var newY = Math.round((this.x - p.x) + p.y);
         return new model.Point(newX, newY);
     },
 
     rotateLeft: function(p) {
-        var newX = (this.y - p.y) + p.x;
-        var newY = -(this.x - p.x) + p.y;
+        var newX = Math.round((this.y - p.y) + p.x);
+        var newY = Math.round(-(this.x - p.x) + p.y);
         return new model.Point(newX, newY);
     },
 
@@ -130,9 +130,11 @@ model.Polyomino.prototype = {
 }
 
 model.Matrix = function(width, height) {
-    this._matrix = _(width).times(_.constant(_(height).times(_.constant(null))));
-}
-
+    this._matrix = _(width).times(function() {
+        return _(height).times(_.constant(null));
+    });
+} 
+		    
 model.Matrix.prototype = {
 
     getWidth: function() { return this._matrix.length; },
@@ -167,8 +169,21 @@ model.Matrix.prototype = {
     },
 
     isEmpty: function(x, y) {
-        return getMino(x, y) === null	    
-    }    
+        return this.getMino(x, y) === null	    
+    },    
+
+    toString: function(x, y) {
+	var s = "\n";
+
+	for(var y = 0; y < this.getHeight(); y++) {
+	    for(var x = 0; x < this.getWidth(); x++)
+                s += this.isEmpty(x, y) ? "  " : "[]";	    
+
+	    s += "\n";
+	}
+
+	return s;
+    }
 }
 
 // End of scope
@@ -178,5 +193,15 @@ model.Matrix.prototype = {
 var testPentamino = new tetris.model.Polyomino(
     [{x: 0, y: 0}, {x: 1, y: 0}, {x: 2, y: 0}, {x: 2, y: 1}, {x: 3, y: 0}], 
     {x: 1, y: 0}   
+);
+
+var testITetramino = new tetris.model.Polyomino(
+    [{x: 0, y: 0}, {x: 1, y: 0}, {x: 2, y: 0}, {x: 3, y: 0} ], 
+    {x: 1.5, y: 0.5}   
+);
+
+var testOTetramino = new tetris.model.Polyomino(
+    [{x: 0, y: 0}, {x: 1, y: 0}, {x: 0, y: 1}, {x: 1, y: 1} ], 
+    {x: 0.5, y: 0.5}   
 );
 
